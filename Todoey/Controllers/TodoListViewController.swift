@@ -53,14 +53,18 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-
-
-        // Delete code
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
-
-//        todoItems[indexPath.row].done = !todoItems[indexPath.row].done
-//        saveItems()
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+//                    realm.delete(item) // This needs to be added to swipeable row
+                    item.done = !item.done
+                }
+            } catch {
+                print("Error saving done status, \(error)")
+            }
+        }
+        
+        tableView.reloadData()
 
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -78,11 +82,11 @@ class TodoListViewController: UITableViewController {
             
             if let currentCategory = self.selectedCategory {
                 do {
-                try self.realm.write {
-                    let newItem = Item()
-                    newItem.title = textField.text!
-                    currentCategory.items.append(newItem)
-                }
+                    try self.realm.write {
+                        let newItem = Item()
+                        newItem.title = textField.text!
+                        currentCategory.items.append(newItem)
+                    }
                 } catch {
                     print("Error saving new items, \(error)")
                 }
